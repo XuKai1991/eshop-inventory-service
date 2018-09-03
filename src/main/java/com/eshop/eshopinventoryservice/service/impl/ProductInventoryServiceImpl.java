@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.eshop.eshopinventoryservice.mapper.ProductInventoryMapper;
 import com.eshop.eshopinventoryservice.model.ProductInventory;
 import com.eshop.eshopinventoryservice.service.ProductInventoryService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,15 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
     @Override
     public ProductInventory findById(Long id) {
         return productInventoryMapper.findById(id);
+    }
+
+    @Override
+    public ProductInventory findByProductId(Long productId) {
+        String productInventoryJsonStr = redisTemplate.opsForValue().get("product_inventory:" + productId);
+        if (StringUtils.isNotEmpty(productInventoryJsonStr)) {
+            return JSONObject.parseObject(productInventoryJsonStr, ProductInventory.class);
+        }
+        return productInventoryMapper.findByProductId(productId);
     }
 
 }
